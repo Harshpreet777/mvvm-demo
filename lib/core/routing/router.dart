@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mvvm_demo/core/routing/routes.dart';
-import 'package:mvvm_demo/ui/views/details_view.dart';
+import 'package:mvvm_demo/ui/views/user_details_view.dart';
 import 'package:mvvm_demo/ui/views/login_view.dart';
 import 'package:mvvm_demo/ui/views/registration_view.dart';
 import 'package:mvvm_demo/ui/views/welcome_view.dart';

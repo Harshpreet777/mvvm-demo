@@ -14,6 +14,8 @@ class StringConstant {
   static String updateData = "Update Data";
   static String login = 'Login';
   static String loginTitle = "Hello Login!";
-  static String logout='Logout';
-  static String notMatch='Name or Email does not Exist';
+  static String logout = 'Logout';
+  static String notMatch = 'Name or Email does not Exist';
+  static String somethingWentWrong = 'Something Went Wrong';
+  static String sessionExpired = 'Session Expired';
 }

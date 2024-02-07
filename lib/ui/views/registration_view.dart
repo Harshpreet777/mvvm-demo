@@ -3,12 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:mvvm_demo/core/constants/color_constants.dart';
 import 'package:mvvm_demo/core/constants/string_constants.dart';
-import 'package:mvvm_demo/core/di/locator.dart';
 import 'package:mvvm_demo/core/models/request_model.dart';
 import 'package:mvvm_demo/core/persistence/preferences.dart';
 import 'package:mvvm_demo/core/routing/routes.dart';
 import 'package:mvvm_demo/core/utils/validation_utils.dart';
-import 'package:mvvm_demo/core/services/http_post_service.dart';
+import 'package:mvvm_demo/core/viewmodels/registration_view_model.dart';
 import 'package:mvvm_demo/ui/widgets/common_textform_field.dart';
 
 class ResgistrationView extends StatefulWidget {
@@ -26,6 +25,7 @@ class _RegistrationViewState extends State<ResgistrationView> {
   bool? isEmailValid = true;
   String gender = "male";
   String status = "active";
+  RegistrationViewModel registrationViewModel=RegistrationViewModel();
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +78,6 @@ class _RegistrationViewState extends State<ResgistrationView> {
             const SizedBox(
               height: 20,
             ),
-            // const RadioButtonWidget(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Container(
@@ -163,17 +162,17 @@ class _RegistrationViewState extends State<ResgistrationView> {
                             email: emailController.text,
                             gender: gender,
                             status: "active");
-                        bool isSuccess =
-                            await locator<PostData>().postData(requestModel);
+                        registrationViewModel.postRegistration(
+                            context, requestModel);
 
-                        if (isSuccess && context.mounted) {
+                        if (context.mounted) {
                           Navigator.of(context).pushNamed(Routes.loginRoute);
                         } else {
                           const snackBar =
                               SnackBar(content: Text('User Not Registered!'));
                           log(snackBar.toString());
                         }
-                        if (isSuccess && context.mounted) {
+                        if ( context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }
                       }

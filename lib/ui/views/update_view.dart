@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mvvm_demo/core/constants/color_constants.dart';
 import 'package:mvvm_demo/core/constants/string_constants.dart';
-import 'package:mvvm_demo/core/di/locator.dart';
 import 'package:mvvm_demo/core/models/request_model.dart';
 import 'package:mvvm_demo/core/routing/routes.dart';
-import 'package:mvvm_demo/core/services/http_update_service.dart';
+import 'package:mvvm_demo/core/viewmodels/update_view_model.dart';
 import 'package:mvvm_demo/ui/widgets/common_elevated_button.dart';
 import 'package:mvvm_demo/ui/widgets/common_text.dart';
 import 'package:mvvm_demo/ui/widgets/common_textform_field.dart';
@@ -36,6 +35,7 @@ class _UpdateViewState extends State<UpdateView> {
   bool? isEmailValid = true;
   String? gender;
   String status = "active";
+  UpdateViewViewModel updateViewViewModel = UpdateViewViewModel();
 
   @override
   void initState() {
@@ -80,8 +80,7 @@ class _UpdateViewState extends State<UpdateView> {
               height: 30,
             ),
             TextFormFieldWidget(
-                name: widget.userEmail.toString(),
-                controller: emailController),
+                name: widget.userEmail.toString(), controller: emailController),
             const SizedBox(
               height: 20,
             ),
@@ -162,21 +161,16 @@ class _UpdateViewState extends State<UpdateView> {
                           gender: updatedGender,
                           status: "active",
                         );
-                        bool isSuccess = await locator<UpdateApi>()
-                            .updateData(requestModel, widget.userId ?? 0);
-                        // bool isSuccess = await UpdateApi.updateData(
-                        //   requestModel,
-                        //   widget.userId,
-                        // );
-                        if (isSuccess && context.mounted) {
+                        updateViewViewModel.postUpdate(
+                            context, requestModel, widget.userId);
+
+                        if (context.mounted) {
                           const snackBar = SnackBar(
                             content: Text("User Details updated"),
                             duration: Duration(seconds: 1),
                           );
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(snackBar);
-                          Navigator.of(context)
-                              .pushNamed(Routes.detailsRoute);
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          Navigator.of(context).pushNamed(Routes.detailsRoute);
                         } else {
                           const snackBar = SnackBar(
                             content: Text("Error..."),

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mvvm_demo/core/constants/color_constants.dart';
 import 'package:mvvm_demo/core/constants/string_constants.dart';
-import 'package:mvvm_demo/core/di/locator.dart';
 import 'package:mvvm_demo/core/models/response_model.dart';
-import 'package:mvvm_demo/core/services/http_delete_service.dart';
-import 'package:mvvm_demo/core/services/http_get_service.dart';
+import 'package:mvvm_demo/core/viewmodels/user_details_view_model.dart';
 import 'package:mvvm_demo/ui/views/update_view.dart';
 import 'package:mvvm_demo/ui/widgets/common_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,12 +17,13 @@ class DetailView extends StatefulWidget {
 
 class _DetailViewState extends State<DetailView> {
   late Future<List<ResponseModel>>? futureData;
+  UserDetailsViewModel userDetailsViewModel = UserDetailsViewModel();
 
   // HttpGetApiService httpsss = HttpGetApiService();
   @override
   void initState() {
     super.initState();
-    futureData = locator<HttpGetApiService>().getData();
+    futureData = userDetailsViewModel.getUserDetails(context);
   }
 
   late SharedPreferences logindata;
@@ -33,6 +33,14 @@ class _DetailViewState extends State<DetailView> {
     debugPrint('Build Call');
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              SystemNavigator.pop();
+            },
+            icon: const Icon(
+              Icons.arrow_back,
+              size: 30,
+            )),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -43,7 +51,7 @@ class _DetailViewState extends State<DetailView> {
                   logindata = await SharedPreferences.getInstance();
                   logindata.clear();
                   if (context.mounted) {
-                    Navigator.pop(context);
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   }
                 },
                 child: Text(
@@ -108,9 +116,6 @@ class _DetailViewState extends State<DetailView> {
                     Flexible(
                         child: InkWell(
                             onTap: () async {
-                              // await locator<DeleteApi>()
-                              // .deleteData(id: data.id);
-
                               showDialog<String>(
                                   context: context,
                                   barrierDismissible: false,
@@ -127,14 +132,16 @@ class _DetailViewState extends State<DetailView> {
                                           ),
                                           TextButton(
                                             onPressed: () async {
-                                              await locator<DeleteApi>()
-                                                  .deleteData(id: data.id);
+                                              userDetailsViewModel
+                                                  .deleteUserDetails(
+                                                      context, data.id);
                                               if (context.mounted) {
                                                 Navigator.pop(context, 'OK');
                                                 setState(() {
-                                                  futureData = locator<
-                                                          HttpGetApiService>()
-                                                      .getData();
+                                                  futureData =
+                                                      userDetailsViewModel
+                                                          .getUserDetails(
+                                                              context);
                                                 });
                                               }
                                             },
@@ -164,8 +171,8 @@ class _DetailViewState extends State<DetailView> {
                                             userStatus: "active",
                                           )));
                               setState(() {
-                                futureData =
-                                    locator<HttpGetApiService>().getData();
+                                futureData = userDetailsViewModel
+                                    .getUserDetails(context);
                               });
                             },
                             child: Icon(
