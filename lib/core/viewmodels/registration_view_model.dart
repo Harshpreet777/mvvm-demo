@@ -4,32 +4,33 @@ import 'package:mvvm_demo/core/constants/string_constants.dart';
 import 'package:mvvm_demo/core/enums/viewstate.dart';
 import 'package:mvvm_demo/core/models/request_model.dart';
 import 'package:mvvm_demo/core/routing/routes.dart';
-import 'package:mvvm_demo/core/services/services.dart';
+import 'package:mvvm_demo/core/repos/services.dart';
 import 'package:mvvm_demo/core/utils/toast_utils.dart';
+import 'package:mvvm_demo/core/viewmodels/base_model.dart';
 
-class RegistrationViewModel {
-  ApiServices apiServices=ApiServices();
-  static dynamic state;
+class RegistrationViewModel extends BaseModel {
+  ApiServices apiServices = ApiServices();
+  // static dynamic state;
   RequestModel? _registrationRequestModel;
   RequestModel? get registrationRequest => _registrationRequestModel;
 
   set registrationRequest(RequestModel? value) {
     _registrationRequestModel = value;
+    updateUI();
   }
 
-   Future postRegistration(
+  Future postRegistration(
       BuildContext context, RequestModel requestModel) async {
-    bool isSuccess = await apiServices.postData(requestModel);
+    Response response = await apiServices.postData(requestModel);
 
     state = ViewState.busy;
     try {
-      if (isSuccess) {
+      if (response.statusCode == 201) {
         state = ViewState.idle;
+
         if (context.mounted) {
           Navigator.of(context).pushNamed(Routes.loginRoute);
         }
-      } else if (!isSuccess) {
-        FlutterToastUtil.showToast('No List');
       } else {
         FlutterToastUtil.showToast(StringConstant.somethingWentWrong);
         state = ViewState.idle;

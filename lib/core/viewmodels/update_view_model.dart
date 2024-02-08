@@ -5,31 +5,30 @@ import 'package:mvvm_demo/core/constants/string_constants.dart';
 import 'package:mvvm_demo/core/enums/viewstate.dart';
 import 'package:mvvm_demo/core/models/request_model.dart';
 import 'package:mvvm_demo/core/routing/routes.dart';
-import 'package:mvvm_demo/core/services/services.dart';
+import 'package:mvvm_demo/core/repos/services.dart';
 import 'package:mvvm_demo/core/utils/toast_utils.dart';
+import 'package:mvvm_demo/core/viewmodels/base_model.dart';
 
-class UpdateViewViewModel {
- static dynamic state;
+class UpdateViewViewModel extends BaseModel {
   RequestModel? updateViewResponseModel;
   RequestModel? get updateViewRequest => updateViewResponseModel;
-  ApiServices apiServices=ApiServices();
+  ApiServices apiServices = ApiServices();
 
   set updateViewRequest(RequestModel? value) {
     updateViewResponseModel = value;
+    updateUI();
   }
 
   Future postUpdate(
       BuildContext context, RequestModel requestModel, int? id) async {
     state = ViewState.busy;
-    bool isSuccess = await apiServices.updateData(requestModel, id ?? 0);
+    Response response = await apiServices.updateData(requestModel, id ?? 0);
     try {
-      if (isSuccess) {
+      if (response.statusCode == 200) {
         state = ViewState.idle;
         if (context.mounted) {
           Navigator.of(context).pushNamed(Routes.detailsRoute);
         }
-      } else if (!isSuccess) {
-        FlutterToastUtil.showToast('Post data failed');
       } else {
         FlutterToastUtil.showToast(StringConstant.somethingWentWrong);
         state = ViewState.idle;

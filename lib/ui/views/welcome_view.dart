@@ -6,14 +6,9 @@ import 'package:mvvm_demo/core/routing/routes.dart';
 import 'package:mvvm_demo/ui/widgets/common_elevated_button.dart';
 import 'package:mvvm_demo/ui/widgets/common_text.dart';
 
-class WelcomeView extends StatefulWidget {
+class WelcomeView extends StatelessWidget {
   const WelcomeView({super.key});
 
-  @override
-  State<WelcomeView> createState() => _WelcomeViewState();
-}
-
-class _WelcomeViewState extends State<WelcomeView> {
   @override
   Widget build(BuildContext context) {
     return welcomeMethod(context);

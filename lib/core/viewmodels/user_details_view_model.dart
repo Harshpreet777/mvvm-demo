@@ -1,40 +1,42 @@
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:mvvm_demo/core/constants/string_constants.dart';
-import 'package:mvvm_demo/core/di/locator.dart';
 import 'package:mvvm_demo/core/enums/viewstate.dart';
 import 'package:mvvm_demo/core/models/response_model.dart';
-import 'package:mvvm_demo/core/services/services.dart';
+import 'package:mvvm_demo/core/repos/services.dart';
 import 'package:mvvm_demo/core/utils/toast_utils.dart';
+import 'package:mvvm_demo/core/viewmodels/base_model.dart';
 
-class UserDetailsViewModel {
-  static dynamic state;
+class UserDetailsViewModel extends BaseModel {
+  List<ResponseModel> datas = [];
+  List<dynamic> userData = [];
+
   ResponseModel? _userDetailsResponseModel;
   ResponseModel? get userDetailsResponse => _userDetailsResponseModel;
   ApiServices apiServices = ApiServices();
 
   set userDetailsResponse(ResponseModel? value) {
     _userDetailsResponseModel = value;
+    updateUI();
   }
 
   Future<List<ResponseModel>> getUserDetails(
     BuildContext context,
   ) async {
-    List<ResponseModel> list = await apiServices.getData();
+    List<dynamic> userData = [];
+
+    Response response = await apiServices.getData();
 
     state = ViewState.busy;
     try {
-      if (list.isNotEmpty) {
-        state = ViewState.idle;
-        FlutterToastUtil.showToast('Data');
-        if (context.mounted) {
-          return list;
-        }
-      } else if (list.isEmpty) {
-        FlutterToastUtil.showToast('No data');
-      } else {
-        FlutterToastUtil.showToast(StringConstant.somethingWentWrong);
-        state = ViewState.idle;
+      if (response.statusCode == 200) {
+        state=ViewState.idle;
+        userData = response.data;
+        datas = userData.map((e) {
+          return ResponseModel.fromJson(e);
+        }).toList();
+        return datas;
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -52,7 +54,7 @@ class UserDetailsViewModel {
       state = ViewState.idle;
     }
     state = ViewState.idle;
-    return list;
+    return datas;
   }
 
   deleteUserDetails(
@@ -60,14 +62,15 @@ class UserDetailsViewModel {
     int id,
   ) async {
     state = ViewState.busy;
-    bool isSuccess = await locator<ApiServices>().deleteData(id: id);
+    Response response = await apiServices.deleteData(id: id);
     try {
-      if (isSuccess) {
+      if (response.statusCode == 201) {
         state = ViewState.idle;
+        updateUI();
         FlutterToastUtil.showToast('Deleted');
-      } else if (!isSuccess) {
+      } else if (response.statusCode == 404) {
         FlutterToastUtil.showToast('Delete Failed');
-      } else {
+      } else if (response.statusCode == 400) {
         FlutterToastUtil.showToast(StringConstant.somethingWentWrong);
         state = ViewState.idle;
       }

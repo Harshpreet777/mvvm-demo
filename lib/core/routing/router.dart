@@ -10,7 +10,7 @@ class PageRouter {
     switch (settings.name) {
       case Routes.detailsRoute:
         return pageRoute(
-          const DetailView(),
+           DetailView(),
           settings,
         );
       case Routes.welcomeRoute:
